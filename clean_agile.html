@@ -24,6 +24,18 @@
                 beginAtZero: true,
               }
             },
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const initial = context.dataset.data[0]; 
+                    const value = context.parsed.y; 
+                    const difference = initial - value;
+                    return `${context.dataset.label}: ${difference}pt (残り: ${value}pt)`;
+                  }
+                }
+              }
+            },
             responsive: false,
           }
         })

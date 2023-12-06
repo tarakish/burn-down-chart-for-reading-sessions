@@ -5,18 +5,38 @@
     <title>Velocity of Reading Clean Agile</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1"></script>
     <script>
+      const ACHIEVEMENT_DATA = [146, 137, 119]; // 実績を入力していく
+      const DAYS = ['0', '11/21', '11/28', '12/5', '12/19', '12/26', '2024/1/9', '1/16', '1/23', '1/30', '2/6', '2/13']; // 休みは除く
+
+      const velocity = (data) => (data[0] - data[data.length - 1]) / (data.length - 1);
+      const velocityRounded = (data) => Math.round(velocity(data) * 10) / 10; // 割り切れないと見にくいので小数第2位で四捨五入して利用
+      const idealBurnDownData = DAYS.map((_, index) => {
+        const stepValue = velocityRounded(ACHIEVEMENT_DATA) * index;
+        return Math.round((ACHIEVEMENT_DATA[0] - stepValue) * 10) / 10;
+      });
+
       window.onload = function () {
-        let context = document.querySelector("#fukuoka_temperature_chart").getContext('2d')
+        const velocityHTML = `<strong>Velocity: ${velocityRounded(ACHIEVEMENT_DATA)}</strong>`
+        document.querySelector("#velocity").innerHTML = velocityHTML;
+        let context = document.querySelector("#clean_agile_burn_down").getContext('2d')
         new Chart(context, {
           type: 'line',
           data: {
-            labels: ['0', '11/21', '11/28', '12/5', '12/12', '12/19', '12/26', '2024/1/9', '1/16', '1/23', '1/30'],
-            datasets: [{
-              label: 'Read Points',
-              data: [146, 137, 119],
-              borderColor: '#ff6347',
-              backgroundColor: '#ff6347',
-            }],
+            labels: DAYS,
+            datasets: [
+              {
+                label: 'Read Points',
+                data: ACHIEVEMENT_DATA,
+                borderColor: '#ff6347',
+                backgroundColor: '#ff6347',
+              },
+              {
+                label: 'Ideal Burn Down',
+                data: idealBurnDownData,
+                borderColor: '#00FFFF',
+                backgroundColor: '#00FFFF',
+              },
+            ],
           },
           options: {
             scales: {
@@ -28,8 +48,8 @@
               tooltip: {
                 callbacks: {
                   label: function(context) {
-                    const initial = context.dataset.data[0]; 
-                    const value = context.parsed.y; 
+                    const initial = context.dataset.data[0];
+                    const value = context.parsed.y;
                     const difference = initial - value;
                     return `${context.dataset.label}: ${difference}pt (残り: ${value}pt)`;
                   }
@@ -40,8 +60,6 @@
           }
         })
       }
-
-      // 別chartで既存Velocityから終了時点を算出できると良さそう
     </script>
   </head>
   <body>
@@ -53,6 +71,9 @@
         <li>End Page: p.169</li>
       </ul>
     </ul>
-    <canvas id="fukuoka_temperature_chart" width="500" height="500"></canvas>
+    <ul>
+      <li id="velocity"></li>
+    </ul>
+    <canvas id="clean_agile_burn_down" width="500" height="500"></canvas>
   </body>
 </html>

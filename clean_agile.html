@@ -10,7 +10,7 @@
 
       const velocity = (data) => (data[0] - data[data.length - 1]) / (data.length - 1);
       const velocityRounded = (data) => Math.round(velocity(data) * 10) / 10; // 割り切れないと見にくいので小数第2位で四捨五入して利用
-      const idealBurnDownData = DAYS.map((_, index) => {
+      const trendLineData = DAYS.map((_, index) => {
         const stepValue = velocityRounded(ACHIEVEMENT_DATA) * index;
         return Math.round((ACHIEVEMENT_DATA[0] - stepValue) * 10) / 10;
       });
@@ -31,8 +31,8 @@
                 backgroundColor: '#ff6347',
               },
               {
-                label: 'Ideal Burn Down',
-                data: idealBurnDownData,
+                label: 'Trend Line',
+                data: trendLineData,
                 borderColor: '#00FFFF',
                 backgroundColor: '#00FFFF',
               },

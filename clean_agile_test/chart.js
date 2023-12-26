@@ -1,0 +1,104 @@
+const ACHIEVEMENT_DATA = [146, 137, 119, 97, 82];
+const DAYS = ['0', '11/21', '11/28', '12/5', '12/19', '12/26', '2024/1/9', '1/16', '1/23', '1/30', '2/6', '2/13'];
+
+const velocity = (data) => (data[0] - data[data.length - 1]) / (data.length - 1);
+const velocityRounded = (data) => Math.round(velocity(data) * 10) / 10;
+const trendLineData = DAYS.map((_, index) => {
+  const stepValue = velocityRounded(ACHIEVEMENT_DATA) * index;
+  return Math.round((ACHIEVEMENT_DATA[0] - stepValue) * 10) / 10;
+});
+
+const myPlugin = {
+  id: 'customText',
+  afterDatasetsDraw: function(chart, args, options) {
+    const ctx = chart.ctx;
+    chart.data.datasets.forEach((dataset, i) => {
+      const meta = chart.getDatasetMeta(i);
+      if (!meta.hidden) {
+        meta.data.forEach((element, index) => {
+          if (dataset.customTextEnabled !== true) {
+            return;
+          }
+
+          const currentData = dataset.data[index];
+          let differenceFromPrevious = 0;
+
+          if (index > 0) {
+            const previousData = dataset.data[index - 1];
+            differenceFromPrevious = previousData - currentData;
+          }
+
+          const point = `${differenceFromPrevious}pt`;
+          ctx.fillStyle = '#ff6347';
+          ctx.font = Chart.helpers.fontString(14, 'normal', 'Helvetica Neue');
+
+          const textWidth = ctx.measureText(point).width;
+          const textPosition = element.tooltipPosition();
+          ctx.fillText(point, textPosition.x + 10, textPosition.y);
+        });
+      }
+    });
+  }
+};
+
+Chart.register(myPlugin);
+
+window.onload = function () {
+  const velocityHTML = `<strong>Velocity: ${velocityRounded(ACHIEVEMENT_DATA)}</strong>`
+  document.querySelector("#velocity").innerHTML = velocityHTML;
+  let context = document.querySelector("#clean_agile_burn_down").getContext('2d');
+  new Chart(context, {
+    type: 'line',
+    data: {
+      labels: DAYS,
+      datasets: [
+        {
+          label: 'Read Points',
+          data: ACHIEVEMENT_DATA,
+          borderColor: '#ff6347',
+          backgroundColor: '#ff6347',
+          customTextEnabled: true,
+        },
+        {
+          label: 'Trend Line',
+          data: trendLineData,
+          borderColor: '#00FFFF',
+          backgroundColor: '#00FFFF',
+        },
+      ],
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          min: 0,
+        }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const dataIndex = context.dataIndex;
+              const firstData = context.dataset.data[0];
+              const currentData = context.dataset.data[dataIndex];
+              let differenceFromFirst = 0;
+              let differenceFromPrevious = 0;
+
+              if (dataIndex > 0) {
+                const previousData = context.dataset.data[dataIndex - 1];
+                differenceFromPrevious = previousData - currentData;
+              }
+              differenceFromFirst = firstData - currentData;
+
+              return [
+                `累計: ${differenceFromFirst}pt`,
+                `残り: ${currentData}pt`
+              ];
+            }
+          }
+        }
+      },
+      responsive: false,
+    }
+  });
+};

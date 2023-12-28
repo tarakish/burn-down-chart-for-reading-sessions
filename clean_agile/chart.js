@@ -43,6 +43,14 @@ const myPlugin = {
 
 Chart.register(myPlugin);
 
+const setCanvasBackground = (ctx, color) => {
+  ctx.save();
+  ctx.globalCompositeOperation = 'destination-over';
+  ctx.fillStyle = color;
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  ctx.restore();
+};
+
 window.onload = function () {
   const velocityHTML = `<strong>Velocity: ${velocityRounded(ACHIEVEMENT_DATA)}</strong>`
   document.querySelector("#velocity").innerHTML = velocityHTML;
@@ -104,5 +112,16 @@ window.onload = function () {
       },
       responsive: false,
     }
+  });
+
+  const canvas = document.getElementById('clean_agile_burn_down');
+  const downloadBtn = document.getElementById('download-btn');
+  downloadBtn.addEventListener('click', function () {
+    setCanvasBackground(context, 'white');
+    const image = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+    const link = document.createElement('a');
+    link.download = 'clean_agile_burn_down.png';
+    link.href = image;
+    link.click();
   });
 };

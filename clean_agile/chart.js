@@ -43,6 +43,7 @@ const myPlugin = {
 
 Chart.register(myPlugin);
 
+// pngが透過されてしまうので背景を白にする
 const setCanvasBackground = (ctx, color) => {
   ctx.save();
   ctx.globalCompositeOperation = 'destination-over';
@@ -114,8 +115,8 @@ window.onload = function () {
     }
   });
 
-  const canvas = document.getElementById('clean_agile_burn_down');
-  const downloadBtn = document.getElementById('download-btn');
+  const canvas = document.querySelector("#clean_agile_burn_down");
+  const downloadBtn = document.querySelector("#download-btn");
   downloadBtn.addEventListener('click', function () {
     setCanvasBackground(context, 'white');
     const image = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
